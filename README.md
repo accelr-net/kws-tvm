@@ -51,7 +51,7 @@ Then save the exported model locally.
 model_path = os.path.join(args.path, "checkpoints","resnet18-kws-best-acc.pt")
 torch.jit.save(script, model_path)
 ```
-Both the `[model].pt` file,`[label].pickle` file  needs to be included in `kwsrn18\kws\rn18` folder.
+Both the `[model].pt` file,`[label].pickle` file  needs to be included in `kws-tvm\kws\rn18` folder.
 
 ***
 
@@ -67,7 +67,7 @@ super().__init__("./", download=True)
 ```
 
 + Rename the `.pt` file and `.pickle` file appropriately in the script.
-+ Run the script from `kwsrn18\kws\rn18` folder with all necessary files.
++ Run the script from `kws-tvm\kws\rn18` folder with all necessary files.
 + For better auto tuning optimization TVM Runner parameters can be changed accordingly.
 + Different data sets can be tested by renaming the testset literals.
 

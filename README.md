@@ -14,7 +14,7 @@ The KWS PyTorch network implemented in this repository is designed to recognize 
 ## Prerequisites
 
 ### 1. Installation of TVM
-There are 3 ways to install the TVM.
+There are 3 ways to install the TVM
 
 + For a quick try out on TVM you can [install from Docker](https://tvm.apache.org/docs/install/docker.html#docker-images).
 + Or locally through `pip`.

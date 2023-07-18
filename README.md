@@ -1,4 +1,4 @@
-# KWS PyTorch Network Implemented in TVM.
+# KWS PyTorch Network Implemented in TVM
 ***
 
 [TVM](https://tvm.apache.org/) is an open-source deep learning compiler stack that enables efficient deployment of deep learning models on various hardware platforms.
@@ -14,7 +14,7 @@ The KWS PyTorch network implemented in this repository is designed to recognize 
 ## Prerequisites
 
 ### 1. Installation of TVM
-There are 3 ways to install the TVM
+There are 3 ways to install the TVM.
 
 + For a quick try out on TVM you can [install from Docker](https://tvm.apache.org/docs/install/docker.html#docker-images).
 + Or locally through `pip`.

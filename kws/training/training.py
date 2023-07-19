@@ -104,14 +104,14 @@ def main(args):
 
     labels = CLASSES
 
-    with open('filename.pickle', 'wb') as handle:
+    with open('lable.pickle', 'wb') as handle:
         pickle.dump(labels, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 if __name__ == "__main__":
 
         parser = argparse.ArgumentParser()
         # model training hyperparameters
-        parser.add_argument('--batch-size', type=int, default=10, metavar='N',
+        parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                             help='input batch size for training (default: 64)')
         parser.add_argument('--max-epochs', type=int, default=2, metavar='N',
                             help='number of epochs to train (default: 30)')
@@ -119,7 +119,7 @@ if __name__ == "__main__":
                             help='learning rate (default: 0.001)')
 
         # where dataset will be stored
-        parser.add_argument("--path", type=str, default="./")
+        parser.add_argument("--path", type=str, default="../rn18/")
 
         # 35 keywords + silence + unknown
         parser.add_argument("--num-classes", type=int, default=35)

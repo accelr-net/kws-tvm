@@ -25,7 +25,7 @@ import os
 
 class SubsetSC(SPEECHCOMMANDS):
     def __init__(self, subset: str = None):
-        super().__init__("./", download=False)
+        super().__init__("../training/", download=False)
 
         def load_list(filename):
             filepath = os.path.join(self._path, filename)
@@ -210,8 +210,8 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-m", "--model_path", help = "The model path for pytorch kws model", default="resnet18-kws-best-acc.pt")
-    parser.add_argument("-l", "--lbl_path", help=" The path of label pickle file", default="./label.pickle")
+    parser.add_argument("-m", "--model_path", help = "The model path for pytorch kws model", default="./checkpoints/resnet18-kws-best-acc.pt")
+    parser.add_argument("-l", "--lbl_path", help=" The path of label pickle file", default="./lable.pickle")
     parser.add_argument("-s", "--sample_rate", help="The resize audio sample rate", default=8000)
 
     args = parser.parse_args()

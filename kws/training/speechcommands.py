@@ -4,7 +4,7 @@ import os
 
 class SubsetSC(SPEECHCOMMANDS):
     def __init__(self, subset: str = None):
-        super().__init__("./", download=False)
+        super().__init__("./", download=True)
 
         def load_list(filename):
             filepath = os.path.join(self._path, filename)

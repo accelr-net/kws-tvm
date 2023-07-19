@@ -10,8 +10,8 @@ from pytorch_lightning import  LightningDataModule
 from speechcommands import SubsetSC
 
 class KWSDataModule(LightningDataModule):
-    def __init__(self,batch_size=128, num_workers=0, n_fft=512, 
-                 n_mels=128, win_length=None, hop_length=256, class_dict={}, 
+    def __init__(self,batch_size=128, num_workers=0, n_fft=1024, 
+                 n_mels=128, win_length=None, hop_length=512, class_dict={}, 
                  **kwargs):
         super().__init__(**kwargs)
         self.batch_size = batch_size

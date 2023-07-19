@@ -8,8 +8,8 @@ import matplotlib as plt
 from pytorch_lightning import  Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from torchsummary import summary
-from resnet18_pl import KWSModel
-from dataset_pl import KWSDataModule
+from kwsmodel import KWSModel
+from kwsdatamodule import KWSDataModule
 
 
 def main(args):
@@ -21,7 +21,7 @@ def main(args):
                 'off', 'on', 'one', 'right', 'seven', 'sheila', 'six', 'stop', 'three',
                 'tree', 'two', 'up', 'visual', 'wow', 'yes', 'zero']
         
-    # make a dictionary from CLASSES to integers
+        # make a dictionary from CLASSES to integers
     CLASS_TO_IDX = {c: i for i, c in enumerate(CLASSES)}
 
     if not os.path.exists(args.path):
@@ -85,6 +85,15 @@ def main(args):
     args.path, "checkpoints", "resnet18-kws-best-acc.ckpt"))
     model.eval()
     script = model.to_torchscript(method="trace", example_inputs=example_input)
+
+    # Define example inputs
+    #  # Replace with appropriate input shape
+
+# Trace the model
+    #traced_model = torch.jit.trace(model, example_input)
+
+
+    
     
 
     # save for use in production environment
@@ -109,7 +118,7 @@ if __name__ == "__main__":
         parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
                             help='learning rate (default: 0.001)')
 
-        # where model and pickle will be stored
+        # where dataset will be stored
         parser.add_argument("--path", type=str, default="./")
 
         # 35 keywords + silence + unknown
@@ -121,7 +130,7 @@ if __name__ == "__main__":
         parser.add_argument("--win-length", type=int, default=None)
         parser.add_argument("--hop-length", type=int, default=512)
 
-        # precision config
+        # 16-bit fp model to reduce the size
         parser.add_argument("--precision", default=32)
         parser.add_argument("--accelerator", default='cpu')
         parser.add_argument("--devices", default=1)

@@ -33,25 +33,15 @@ pip install torch torchvision torchaudio
 ```
 ### 3. Pre-trained Pytorch Network files.
 
-Our scripts require a pre-trained network - i.e. a model file (`[model].pt`) and a label file (`[label].pickle`) to operate. These binary files are not provided with the repo but can be genearated through model training scripts.
+Our scripts require a pre-trained network - i.e. a model file (`[model].pt`) and a label file (`[label].pickle`) to operate. These binary files are not provided with the repo but can be genearated through model training scripts provided in the training directory.
 Once the model is trained, the `[model].pt` file must be saved as trace model after training because TVM does not support other saved models from pytorch.
-For this purpose after training the model, add these lines in the training script. 
 
-To set the model in inference mode add,
+#### Run the Following argument for generating trace model and pickle file
+
 ```
-model.eval()
+python training.py 
+
 ```
-Then export the model as  trace format passing the input shape tensor.
-```
-example_input = torch.randn(1, 1, 128, 63)
-script = model.to_torchscript(method="trace", example_inputs=example_input)
-```
-Then save the exported model locally.
-```
-model_path = os.path.join(args.path, "checkpoints","resnet18-kws-best-acc.pt")
-torch.jit.save(script, model_path)
-```
-Both the `[model].pt` file,`[label].pickle` file  needs to be included in `kws-tvm\kws\rn18` folder.
 
 ***
 

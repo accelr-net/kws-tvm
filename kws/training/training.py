@@ -85,15 +85,7 @@ def main(args):
     args.path, "checkpoints", "resnet18-kws-best-acc.ckpt"))
     model.eval()
     script = model.to_torchscript(method="trace", example_inputs=example_input)
-
-    # Define example inputs
-    #  # Replace with appropriate input shape
-
-# Trace the model
-    #traced_model = torch.jit.trace(model, example_input)
-
-
-    
+   
     
 
     # save for use in production environment
@@ -104,7 +96,7 @@ def main(args):
 
     labels = CLASSES
 
-    with open('lable.pickle', 'wb') as handle:
+    with open('../rn18/lable.pickle', 'wb') as handle:
         pickle.dump(labels, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 if __name__ == "__main__":

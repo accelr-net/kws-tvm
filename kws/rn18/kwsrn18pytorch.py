@@ -43,8 +43,17 @@ class SubsetSC(SPEECHCOMMANDS):
 
 
 def load_model(mdl_path: str):
-    model = torch.jit.load(mdl_path)
-    return model
+
+    try:
+        model = torch.jit.load(mdl_path)
+        print("Model loaded successfully.")
+        print("\n")
+        return model
+    
+    except Exception as e:
+        print(f"Error loading the model: {e}")
+        print("\n")
+        return None
 
 
 def load_labels(lbl_path: str):
@@ -87,19 +96,29 @@ def main(args):
 
     # Loading the Pytorch Model (CUDA/CPU) 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+    print("\n")
+    print("----- Loading Pre Trained Model .....")
+    
     model = load_model(args.model_path)
+    
+
     labels = load_labels(args.lbl_path)
+
     CLASS_TO_IDX = {c: i for i, c in enumerate(labels)}
     idx_to_class = {v: k for k, v in CLASS_TO_IDX.items()}
 
     # Insertion of data set for inference
+    
+
     test_set = SubsetSC("testing")
     waveforms = []
     sample_rates = []
     labels = []
     speaker_ids = []
     utterance_numbers = []
+
+    print("---- Starting Optimization ----")
+    print("\n")
 
     # Importing the ML Graph to Relay (TVM)
     input_shape = get_shape()
@@ -135,10 +154,16 @@ def main(args):
     "tuning_records": "kws-rn18-autotuning.json",
     }
 
+    print("** Extracting Tasks.... ")
+    print("\n")
+
     # begin by extracting the tasks from the ML model
     tasks = autotvm.task.extract_from_program(mod["main"], target=target, params=params)
-    #print(tasks)
+    print(tasks)
 
+    print("\n")
+    print("** Tuning Extracted Tasks.... ")
+    print("\n")
     # Tune the extracted tasks sequentially.
     for i, task in enumerate(tasks):
         prefix = "[Task %2d/%2d] " % (i + 1, len(tasks))
@@ -200,9 +225,13 @@ def main(args):
     accuracy = correct/count
     pyaccuracy = pycorrect/count
 
+    print("\n")
+    print("----------- Inferencing performance with Pytorch  ------------")
     print("Count: " + str(count) + " Correct: " + str(correct) + " Wrong: " + str(wrong))
     print("Accuaracy: " + str(accuracy))
+    print("\n")
 
+    print("----------- Inferencing performance with ML network implemented in llvm optimized via TVM  ------------")
     print("Count: " + str(count) + " PyCorrect: " + str(pycorrect) + " PyWrong: " + str(pywrong))
     print("PyAccuaracy: " + str(pyaccuracy))
     

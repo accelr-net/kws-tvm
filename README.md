@@ -17,11 +17,7 @@ The KWS PyTorch network implemented in this repository is designed to recognize 
 There are 3 ways to install the TVM.
 
 + For a quick try out on TVM you can [install from Docker](https://tvm.apache.org/docs/install/docker.html#docker-images).
-+ Or locally through `pip`.
-
-```
-pip install apache-tvm
-```
++ Or locally through [install from the binary package](https://tvm.apache.org/docs/tutorial/install.html#sphx-glr-tutorial-install-py).
 + Otherwise [install from source](https://tvm.apache.org/docs/install/from_source.html#install-from-source) with maximum flexibility 
  to configure the build from official source releases.
 
@@ -36,28 +32,24 @@ pip install torch torchvision torchaudio
 Our scripts require a pre-trained network - i.e. a model file (`[model].pt`) and a label file (`[label].pickle`) to operate. These binary files are not provided with the repo but can be genearated through model training scripts provided in the training directory.
 Once the model is trained, the `[model].pt` file must be saved as trace model after training because TVM does not support other saved models from pytorch.
 
-#### Run the Following argument for generating trace model and pickle file
 
-```
-python training.py 
-
-```
 
 ***
 
 ## Process
-+ Clone the repository. 
-+ Set up the CONDA environment `tvm-build`.
++ Clone the repository.
++ Run the `training.py` script from `kws-tvm\kws\training` folder to genrate trace model and pickle file.
 ```
-conda activate tvm-build
+python training.py 
 ```
-+ If the script is running for the first time and to to download the dataset, set the download value to `TRUE` in the following line. 
++ If the training script is running for the first time and to to download the dataset, set the download value to `TRUE` in the following line. 
 ```
 super().__init__("./", download=True)
 ```
-
-+ Rename the `.pt` file and `.pickle` file appropriately in the script.
-+ Run the script from `kws-tvm\kws\rn18` folder with all necessary files.
++ Run the `kwsrn18pytorch.py` script from `kws-tvm\kws\rn18` folder with all necessary files.
+ ```
+python kwsrn18pytorch.py
+```
 + For better auto tuning optimization TVM Runner parameters can be changed accordingly.
 + Different data sets can be tested by renaming the testset literals.
 

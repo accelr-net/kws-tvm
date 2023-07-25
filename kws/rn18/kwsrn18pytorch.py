@@ -186,6 +186,7 @@ def main(args):
 
     # Performance Variables
     count = 0
+    pcount = 0
     correct = 0
     wrong = 0 
     pycorrect = 0

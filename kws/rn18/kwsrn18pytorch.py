@@ -7,7 +7,7 @@ import argparse
 import librosa
 from torchvision.transforms import ToTensor
 import numpy as np
-
+import time
 import tvm
 from tvm import relay
 from tvm.contrib.download import download_testdata
@@ -195,20 +195,44 @@ def main(args):
     m = graph_executor.GraphModule(lib["default"](dev))
 
     #Performance Measurement of the Data set
+
+    #Inferencing with Pytorch and it's performance measurement
+
+    pstart_time = time.time()
+
     for t in test_set:
         waveform_t, sample_rate_t, label_t, speaker_id_t, utterance_number_t = t
         spectogram_t = mel_conversion(waveform_t,sample_rate_t)
 
-        #Inferencing with Pytorch and it's performance measurement
+        
         pred = torch.argmax(model(spectogram_t), dim=1)
         pytorch_pred = idx_to_class[pred.item()]
+
+        pcount = pcount + 1
 
         if(pytorch_pred == label_t):
             pycorrect = pycorrect + 1
         else:
             pywrong = pywrong + 1 
+        
+    pyaccuracy = pycorrect/count
 
-        #Inferencing with ML network implemented in llvm optimized via TVM
+    print("\n")
+    print("----------- Inferencing performance with Pytorch  ------------")
+    print("Count: " + str(pcount) + " Correct: " + str(pycorrect) + " Wrong: " + str(pywrong))
+    print("Accuaracy: " + str(pyaccuracy))
+    print('Inference speed: %.2f samples/s'%(pcount/(time.time()-pstart_time)))
+    print("\n")
+
+    #Inferencing with ML network implemented in llvm optimized via TVM
+
+    start_time = time.time()
+
+    for l in test_set:
+
+        waveform_t, sample_rate_t, label_t, speaker_id_t, utterance_number_t = l
+        spectogram_t = mel_conversion(waveform_t,sample_rate_t)
+
         input_name_t = "input0" 
         m.set_input(input_name_t, tvm.nd.array(spectogram_t))
         m.run()
@@ -222,18 +246,19 @@ def main(args):
         else:
             wrong = wrong + 1 
 
-    accuracy = correct/count
-    pyaccuracy = pycorrect/count
 
-    print("\n")
-    print("----------- Inferencing performance with Pytorch  ------------")
+    accuracy = correct/count
+    
+    print("----------- Inferencing performance with ML network implemented in llvm optimized via TVM  ------------")
     print("Count: " + str(count) + " Correct: " + str(correct) + " Wrong: " + str(wrong))
     print("Accuaracy: " + str(accuracy))
-    print("\n")
+    print('Inference speed: %.2f samples/s'%(count/(time.time()-start_time)))
+    
 
-    print("----------- Inferencing performance with ML network implemented in llvm optimized via TVM  ------------")
-    print("Count: " + str(count) + " PyCorrect: " + str(pycorrect) + " PyWrong: " + str(pywrong))
-    print("PyAccuaracy: " + str(pyaccuracy))
+    
+
+    
+   
     
 
 if __name__ == "__main__":

@@ -8,6 +8,7 @@ import librosa
 from torchvision.transforms import ToTensor
 import numpy as np
 import time
+import pprint
 import tvm
 from tvm import relay
 from tvm.contrib.download import download_testdata
@@ -19,7 +20,6 @@ import tvm.auto_scheduler as auto_scheduler
 from tvm.autotvm.tuner import XGBTuner
 from tvm import autotvm
 
-# Performance
 from torchaudio.datasets import SPEECHCOMMANDS
 import os
 
@@ -97,8 +97,11 @@ def main(args):
     # Loading the Pytorch Model (CUDA/CPU) 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("\n")
-    print("----- Loading Pre Trained Model .....")
-    
+    print(" ----------------------------")
+    print("| Loading Pre Trained Model |")
+    print(" ----------------------------")
+    print("\n")
+
     model = load_model(args.model_path)
     
 
@@ -116,8 +119,9 @@ def main(args):
     labels = []
     speaker_ids = []
     utterance_numbers = []
-
-    print("---- Starting Optimization ----")
+    print(" ------------------------")
+    print("| Starting Optimization |")
+    print(" ------------------------")
     print("\n")
 
     # Importing the ML Graph to Relay (TVM)
@@ -159,11 +163,15 @@ def main(args):
 
     # begin by extracting the tasks from the ML model
     tasks = autotvm.task.extract_from_program(mod["main"], target=target, params=params)
-    print(tasks)
+    pprint.pprint(tasks)
+
+
+
 
     print("\n")
     print("** Tuning Extracted Tasks.... ")
     print("\n")
+
     # Tune the extracted tasks sequentially.
     for i, task in enumerate(tasks):
         prefix = "[Task %2d/%2d] " % (i + 1, len(tasks))
@@ -184,6 +192,11 @@ def main(args):
             lib = relay.build(mod, target=target, params=params)
     dev = tvm.cpu(0)
 
+
+    print("\n")
+    print(" -----------------------")
+    print("| Running Inferencing |")
+    print(" -----------------------")
     # Performance Variables
     count = 0
     pcount = 0
@@ -216,10 +229,11 @@ def main(args):
         else:
             pywrong = pywrong + 1 
         
-    pyaccuracy = pycorrect/count
+    pyaccuracy = pycorrect/pcount
 
     print("\n")
     print("----------- Inferencing performance with Pytorch  ------------")
+    print("\n")
     print("Count: " + str(pcount) + " Correct: " + str(pycorrect) + " Wrong: " + str(pywrong))
     print("Accuaracy: " + str(pyaccuracy))
     print('Inference speed: %.2f samples/s'%(pcount/(time.time()-pstart_time)))
@@ -251,9 +265,12 @@ def main(args):
     accuracy = correct/count
     
     print("----------- Inferencing performance with ML network implemented in llvm optimized via TVM  ------------")
+    print("\n")
     print("Count: " + str(count) + " Correct: " + str(correct) + " Wrong: " + str(wrong))
     print("Accuaracy: " + str(accuracy))
     print('Inference speed: %.2f samples/s'%(count/(time.time()-start_time)))
+    print("\n")
+
     
 
     

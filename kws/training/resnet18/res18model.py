@@ -5,7 +5,7 @@ from torchmetrics.classification import MulticlassAccuracy
 
 
 
-class KWSModel(LightningModule):
+class Res18Model(LightningModule):
     def __init__(self, num_classes=35, epochs=30, lr=0.001, **kwargs):
         super().__init__()
         self.save_hyperparameters()

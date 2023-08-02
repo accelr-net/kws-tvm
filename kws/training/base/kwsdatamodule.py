@@ -7,7 +7,7 @@ import torchaudio
 from torchvision.transforms import ToTensor
 from pytorch_lightning import  LightningDataModule
 
-from speechcommands import SubsetSC
+from base.speechcommands import SubsetSC
 
 class KWSDataModule(LightningDataModule):
     def __init__(self,batch_size=128, num_workers=0, n_fft=1024, 
@@ -51,6 +51,7 @@ class KWSDataModule(LightningDataModule):
                                                               hop_length=self.hop_length,
                                                               n_mels=self.n_mels,
                                                               power=2.0)
+        self.resize = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=8000)
 
     def setup(self, stage=None):
         self.prepare_data()
@@ -84,26 +85,12 @@ class KWSDataModule(LightningDataModule):
             pin_memory=True,
             collate_fn=self.collate_fn
         )
+    
+    def pad_sequence(self, batch):
+    
+        batch = [item.t() for item in batch]
+        batch = torch.nn.utils.rnn.pad_sequence(batch, batch_first=True, padding_value=0.)
+        return batch.permute(0, 2, 1)
 
     def collate_fn(self, batch):
-        mels = []
-        labels = []
-        wavs = []
-        for sample in batch:
-            waveform, sample_rate, label, speaker_id, utterance_number = sample
-            # ensure that all waveforms are 1sec in length; if not pad with zeros
-            if waveform.shape[-1] < sample_rate:
-                waveform = torch.cat([waveform, torch.zeros((1, sample_rate - waveform.shape[-1]))], dim=-1)
-            elif waveform.shape[-1] > sample_rate:
-                waveform = waveform[:,:sample_rate]
-
-            # mel from power to db
-            mels.append(ToTensor()(librosa.power_to_db(self.transform(waveform).squeeze().numpy(), ref=np.max)))
-            labels.append(torch.tensor(self.class_dict[label]))
-            wavs.append(waveform)
-
-        mels = torch.stack(mels)
-        labels = torch.stack(labels)
-        wavs = torch.stack(wavs)
-   
-        return mels, labels, wavs
+       raise NotImplementedError

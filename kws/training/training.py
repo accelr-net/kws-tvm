@@ -1,6 +1,5 @@
 import argparse
 import torch
-
 import pickle
 import os
 import sys
@@ -8,11 +7,12 @@ import matplotlib as plt
 from pytorch_lightning import  Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from torchsummary import summary
-from kwsmodel import KWSModel
-from kwsdatamodule import KWSDataModule
+
 
 
 def main(args):
+
+    print(sys.path)
 
     
     
@@ -28,39 +28,74 @@ def main(args):
         os.makedirs(args.path, exist_ok=True)
 
     
+    if args.model == "resnet18":
 
-    try:
-        model = KWSModel(num_classes=args.num_classes, epochs=args.max_epochs, lr=args.lr)
-        summary(model, (1, 128, 63))
-        
-    except Exception as e:
-        print(f"Error creating DModel object: {e}")
-        sys.exit(1)
+        from resnet18.res18model import Res18Model
+        from resnet18.res18data import Res18Data
+
+        try:
+            model = Res18Model(num_classes=args.num_classes, epochs=args.max_epochs, lr=args.lr)
+            summary(model, (1, 128, 63))
+            
+        except Exception as e:
+            print(f"Error creating DModel object: {e}")
+            sys.exit(1)
 
 
-    example_input = torch.randn(1, 1, 128, 63)
-    print(example_input.shape)
+        example_input = torch.randn(1, 1, 128, 63)
+        print(example_input.shape)
 
-    try:
-        datamodule = KWSDataModule(batch_size=args.batch_size, num_workers=args.num_workers,
-                                n_fft=args.n_fft, n_mels=args.n_mels,
-                                win_length=args.win_length, hop_length=args.hop_length,
-                                class_dict=CLASS_TO_IDX)
-        datamodule.setup()
+        try:
+            datamodule = Res18Data(batch_size=args.batch_size, num_workers=args.num_workers,
+                                    n_fft=args.n_fft, n_mels=args.n_mels,
+                                    win_length=args.win_length, hop_length=args.hop_length,
+                                    class_dict=CLASS_TO_IDX)
+            datamodule.setup()
 
-    except Exception as e:
-        print(f"Error creating Data Module object: {e}")
-        sys.exit(1)
+        except Exception as e:
+            print(f"Error creating Data Module object: {e}")
+            sys.exit(1)
 
     
-    print(model)
+        print(model)
+    
+    elif args.model == "m5":
+
+        from m5.m5model import M5Model
+        from m5.m5data import M5Data
+
+
+        try:
+            model = M5Model(n_input=1, n_channel=32, stride=16, n_output=35, epochs=args.max_epochs, lr=args.lr)
+            summary(model, (1, 8000))
+            
+        except Exception as e:
+            print(f"Error creating Model object: {e}")
+            sys.exit(1)
+
+
+        example_input = torch.randn(1,1,8000)
+        
+
+        try:
+            datamodule = M5Data(batch_size=args.batch_size, num_workers=args.num_workers,
+                                    n_fft=args.n_fft, n_mels=args.n_mels,
+                                    win_length=args.win_length, hop_length=args.hop_length,
+                                    class_dict=CLASS_TO_IDX)
+            datamodule.setup()
+
+        except Exception as e:
+            print(f"Error creating Data Module object: {e}")
+            sys.exit(1)
+
+        print(model)
  
 
         
 
     model_checkpoint = ModelCheckpoint(
             dirpath=os.path.join(args.path, "checkpoints"),
-            filename="resnet18-kws-best-acc",
+            filename=args.model + "-kws-best-acc",
             save_top_k=1,
             verbose=True,
             monitor='test_acc',
@@ -82,7 +117,7 @@ def main(args):
     
 
     model = model.load_from_checkpoint(os.path.join(
-    args.path, "checkpoints", "resnet18-kws-best-acc.ckpt"))
+    args.path, "checkpoints", args.model+"-kws-best-acc.ckpt"))
     model.eval()
     script = model.to_torchscript(method="trace", example_inputs=example_input)
    
@@ -90,7 +125,7 @@ def main(args):
 
     # save for use in production environment
     model_path = os.path.join(args.path, "checkpoints",
-                            "resnet18-kws-best-acc.pt")
+                           args.model + "-kws-best-acc.pt")
     torch.jit.save(script, model_path)
 
 
@@ -105,7 +140,7 @@ if __name__ == "__main__":
         # model training hyperparameters
         parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                             help='input batch size for training (default: 64)')
-        parser.add_argument('--max-epochs', type=int, default=2, metavar='N',
+        parser.add_argument('--max-epochs', type=int, default=1, metavar='N',
                             help='number of epochs to train (default: 30)')
         parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
                             help='learning rate (default: 0.001)')
@@ -128,7 +163,7 @@ if __name__ == "__main__":
         parser.add_argument("--devices", default=1)
         parser.add_argument("--num-workers", type=int, default=8)
 
-        parser.add_argument("--no-wandb", default=False, action='store_true')
+        parser.add_argument("--model", default='resnet18')
 
         args = parser.parse_args()
 
